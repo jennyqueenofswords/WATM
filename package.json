@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "bad-words": "^3.0.4",
+    "fs-extra": "^11.1.1"
+  }
+}
