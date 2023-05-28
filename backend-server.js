@@ -137,3 +137,12 @@ app.post("/send_vote", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
 });
+app.get("/getPoemPair", async (req, res) => {
+  try {
+    const poems = await getPoemPair(); // This function should return a pair of poems
+    res.json({ poems: poems });
+  } catch (error) {
+    console.error("Error fetching poem pair:", error);
+    res.status(500).json({ error: "Unable to fetch poem pair" });
+  }
+});

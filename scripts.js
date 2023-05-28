@@ -131,3 +131,16 @@ function closeModal(element) {
     document.body.removeChild(modal);
   }
 }
+
+async function fetchPoemPair() {
+  try {
+    const response = await fetch(HEROKU_URL + "/getPoemPair");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    displayPoemPair(result.poems); // This function should display the pair of poems to the user
+  } catch (error) {
+    console.error("Error fetching poem pair:", error);
+  }
+}
