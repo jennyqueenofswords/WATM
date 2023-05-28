@@ -4,15 +4,19 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const BadWordsFilter = require("bad-words");
 
-const PORT = process.env.PORT || 3000;
-const OPENAI_API_KEY = "YOUR_API_KEY";
-const OPENAI_API_URL = "https://api.openai.com/v1/engines/davinci-codex/completions";
+const dotenv = require("dotenv");
+dotenv.config();
+
+const PORT = process.env.PORT || 4000;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_URL = "https://api.openai.com/v1/engines/gpt-3.5-turbo/completions";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const filter = new BadWordsFilter();
+
 
 const poemsDir = "./poems";
 fs.ensureDirSync(poemsDir);
@@ -21,18 +25,10 @@ function hasInappropriateContent(text) {
   return filter.isProfane(text);
 }
 
+const randomWords = require('random-words');
+
 function generateRandomWords(num_words) {
-  const allWords = [
-    "sun", "moon", "stars", "clouds", "rain", "snow", "wind", "storm",
-  ];
-
-  const randomWords = [];
-  for (let i = 0; i < num_words; i++) {
-    const randomIndex = Math.floor(Math.random() * allWords.length);
-    randomWords.push(allWords[randomIndex]);
-  }
-
-  return randomWords;
+  return randomWords({ exactly: num_words });
 }
 
 async function savePoem(poemData) {
@@ -47,8 +43,8 @@ async function generatePoem(prompt, randomWords) {
       OPENAI_API_URL,
       {
         prompt: aiPrompt,
-        max_tokens: 200,
-        temperature: 0.7
+        max_tokens: 100,
+        temperature: 0.8
       },
       { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_API_KEY}` } }
     );
@@ -71,7 +67,7 @@ app.post("/submitPoem", async (req, res) => {
 });
 
 app.get("/ai_poem", async (req, res) => {
-  const randomWords = req.query.randomWords.split(",");
+const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords.split(",");
   const prompt = "Compose a striking poem that will amaze a reader";
   const generatedPoem = await generatePoem(prompt, randomWords);
 
@@ -91,33 +87,6 @@ app.listen(PORT, () => {
 });
 const openaiApiKey = "YOUR_OPENAI_API_KEY";
 
-async function getAiCritique(poem1, poem2) {
-  const apiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
-  const prompt = `Read these two poems and provide feedback for each: \n\nPoem 1: ${poem1}\nPoem 2: ${poem2}`;
-  
-  try {
-    const response = await axios.post(
-      apiUrl,
-      {
-        prompt: prompt,
-        max_tokens: 100,
-        temperature: 0.5,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiApiKey}`,
-        },
-      }
-    );
-
-    return response.data.choices[0].text.trim();
-  } catch (error) {
-    console.error("Error fetching critique:", error);
-    return null;
-  }
-}
-
 app.post("/ai_critique", async (req, res) => {
   const poem1 = req.body.poem1;
   const poem2 = req.body.poem2;
@@ -128,4 +97,43 @@ app.post("/ai_critique", async (req, res) => {
   } else {
     res.status(500).send("Unable to generate review");
   }
+});
+
+/* Add the GPT-3 Requests for AI critique */
+async function getAiCritique(poem1, poem2) {
+  const prompt = `Read these two poems and provide feedback for each: \n\nPoem 1: ${poem1}\nPoem 2: ${poem2}`;
+  
+  try {
+    const response = await axios.post(
+      OPENAI_API_URL,
+      {
+        prompt: prompt,
+        max_tokens: 100,
+        temperature: 0.5,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    return response.data.choices[0].text.trim();
+  } catch (error) {
+    console.error("Error fetching critique:", error);
+    return null;
+  }
+}
+app.get("/random_words", (req, res) => {
+  res.json({ randomWords: generateRandomWords(5) });
+});
+app.post("/send_vote", (req, res) => {
+  const voteData = req.body.vote;
+  console.log("Received vote for Poem " + voteData);
+  // Process the received vote (store in database, update stats, etc.)
+  res.json({ message: "Vote processed successfully" });
+});
+app.get("/", (req, res) => {
+  res.send("Welcome to the Write Against the Machine API!");
 });

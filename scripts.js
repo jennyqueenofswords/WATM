@@ -1,42 +1,98 @@
-document.getElementById("vote-1").addEventListener("click", () => {
-  processVote(1);
+document.body.addEventListener('click', function (event) {
+  if (event.target.tagName === 'BUTTON') {
+    const buttonId = event.target.id.split('-')[1];
+    processVote(buttonId);
+  }
 });
 
-document.getElementById("vote-2").addEventListener("click", () => {
-  processVote(2);
-});
-
-function getAiPoem() {
-  const apiUrl = "http://localhost:3000/ai_poem";
-
-  $.get(apiUrl)
-    .done((data) => {
-      displayAiPoem(data.poem);
-    })
-    .fail((error) => {
-      console.error("Error fetching AI-generated poem:", error);
-    });
+async function fetchData(url, requestOptions) {
+  try {
+    const response = await fetch(url, requestOptions);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
 }
 
-function getRandomWords() {
-  const apiUrl = "http://localhost:3000/random_words";
 
-  $.get(apiUrl)
-    .done((data) => {
-      const randomWordsContainer = $("#random-words-container");
-      for (const word of data.randomWords) {
-        randomWordsContainer.append(`<span>${word}</span> `);
-      }
-    })
-    .fail((error) => {
-      console.error("Error fetching random words:", error);
+async function submitPoem() {
+  const textarea = document.querySelector("#poem-submission-form textarea");
+  const escapedPoem = textarea.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const poemData = { poem: escapedPoem };
+
+  try {
+    const response = await fetch("/submitPoem", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(poemData),
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    animateSubmit();
+    showModal("Poem submitted!");
+  } catch (error) {
+    console.error("Submission error:", error);
+    showModal("Failed to submit poem!");
+  }
 }
 
-getRandomWords();
+function displayAiPoem(poem) {
+  const aiPoemSection = document.getElementById("ai-poem");
+  const aiGeneratedPoem = document.getElementById("ai-generated-poem");
+  const aiCriticReview = document.getElementById("ai-critic-review");
 
-function submitPoem() {
-  console.log("Poem submitted");
+  aiGeneratedPoem.textContent = "AI-generated poem: " + poem.ai_poem;
+  aiCriticReview.textContent = "AI critic's review: " + poem.ai_review;
+
+  aiPoemSection.style.display = "block";
+}
+
+async function processVote(vote) {
+  console.log("Processing vote for Poem " + vote);
+  try {
+    const response = await fetch("/send_vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vote: vote })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result.message);
+  } catch (error) {
+    console.error("Error sending vote:", error);
+  }
+}
+
+async function fetchRandomWords() {
+  try {
+    const response = await fetch("/random_words");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    displayRandomWords(result.randomWords);
+  } catch (error) {
+    console.error("Error fetching random words:", error);
+  }
+}
+
+// Call the function in the writing-mode.html page
+if (document.getElementById("random-words-container")) {
+  fetchRandomWords();
 }
 
 function animateSubmit() {
@@ -47,80 +103,28 @@ function animateSubmit() {
     submitBtn.classList.remove("animate");
   }, 1000);
 }
+function showModal(message) {
+  const modal = document.createElement("div");
+  modal.classList.add("modal");
+  
+  const modalContent = document.createElement("div");
+  modalContent.classList.add("modal-content");
+  modalContent.innerHTML = `
+    <p>${message}</p>
+    <button onclick="closeModal(this)">OK</button>
+  `;
 
-function fetchPoemsForVoting() {
-  const apiUrl = "http://localhost:3000/fetch_poems";
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
 
-  $.get(apiUrl)
-    .done((data) => {
-      $("#poem-1 p").text(data.poem_1.text);
-      $("#poem-2 p").text(data.poem_2.text);
-    })
-    .fail((error) => {
-      console.error("Error fetching poems for voting:", error);
-    });
+  setTimeout(() => {
+    closeModal(modalContent);
+  }, 3000);
 }
 
-function processVote(vote) {
-  const apiUrl = "http://localhost:3000/vote";
-
-  $.post(apiUrl, { vote: vote })
-    .done((data) => {
-      $("#winning-poem-result").text("The winning poem is: " + data.winning_poem.text);
-      $("#authorship-result").text("Authorship: " + (data.winning_poem.isAI ? "AI" : "Human"));
-      $("#ai-critic-choice").text("AI critic's choice: " + (data.ai_critic_choice === 1 ? "Poem 1" : "Poem 2"));
-      $("#voting-stats").text("Voting statistics: " + JSON.stringify(data.voting_statistics));
-
-      $("#results").show();
-      $("#poems").hide();
-    })
-    .fail((error) => {
-      console.error("Error processing vote:", error);
-    });
-}
-
-fetchPoemsForVoting();
-function displayAiPoem(poem) {
-  const aiPoemSection = document.getElementById("ai-poem");
-  const aiGeneratedPoem = document.getElementById("ai-generated-poem");
-  const aiCriticReview = document.getElementById("ai-critic-review");
-
-  aiGeneratedPoem.textContent = "AI-generated poem: " + poem.ai_poem;
-  aiCriticReview.textContent = "AI critic's review: " + poem.ai_review;
-
-  aiPoemSection.style.display = "block";
-}
-
-function submitPoem() {
-  console.log("Poem submitted");
-
-  // Fetch the AI-generated poem and AI critic's review using getAiPoem()
-  getAiPoem();
-}
-function displayAiPoem(poem) {
-  const aiPoemSection = document.getElementById("ai-poem");
-  const aiGeneratedPoem = document.getElementById("ai-generated-poem");
-  const aiCriticReview = document.getElementById("ai-critic-review");
-
-  aiGeneratedPoem.textContent = "AI-generated poem: " + poem.ai_poem;
-  aiCriticReview.textContent = "AI critic's review: " + poem.ai_review;
-
-  aiPoemSection.style.display = "block";
-}
-
-function submitPoem() {
-  console.log("Poem submitted");
-
-  // Fetch the AI-generated poem and AI critic's review using getAiPoem()
-  getAiPoem();
-}
-async function getAiCritique(poem1, poem2) {
-  const apiUrl = "http://localhost:3000/ai_critique";
-  const data = await fetchData(apiUrl, { poem1, poem2 });
-
-  if (data && data.review) {
-    return data.review;
-  } else {
-    return null;
+function closeModal(element) {
+  const modal = element.closest(".modal");
+  if (modal) {
+    document.body.removeChild(modal);
   }
 }

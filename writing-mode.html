@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="description" content="An interactive poetry game where you challenge an AI in composing and critiquing poems.">
+<meta property="og:title" content="Write Against the Machine">
+<meta property="og:description" content="An interactive poetry game where you challenge an AI in composing and critiquing poems.">
+<meta property="og:image" content="IMAGE_URL">
+<meta property="og:url" content="WEBSITE_URL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Write Against the Machine">
+<meta name="twitter:description" content="An interactive poetry game where you challenge an AI in composing and critiquing poems.">
+<meta name="twitter:image" content="IMAGE_URL">
   <link rel="stylesheet" href="styles.css">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,18 +29,19 @@
   <section id="user-poem">
     <form id="poem-submission-form" onsubmit="event.preventDefault(); submitPoem();">
       <textarea placeholder="Compose your poem here" required></textarea>
-      <!-- Writing Mode submit button with animation trigger -->
-      <button class="submit-btn" onclick="animateSubmit();">
-<button class="submit-btn" onclick="animateSubmit();">Submit</button>
-</form>
-</section>
-<section id="ai-poem" style="display:none;">
-<p id="ai-generated-poem">AI-generated poem: [AI's_poem_here]</p>
-<p id="ai-critic-review">AI critic's review: [AI_critic's_review_here]</p>
-</section>
-<footer>
-<p>&copy; 2023 Write Against the Machine</p>
-</footer>
-<script src="scripts.js"></script>
+      <button class="submit-btn" onclick="animateSubmit();">Submit</button>
+    </form>
+  </section>
+  <div id="loading-spinner" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+  <section id="ai-poem" style="display:none;">
+    <p id="ai-generated-poem">AI-generated poem: [AI's_poem_here]</p>
+    <p id="ai-critic-review">AI critic's review: [AI_critic's_review_here]</p>
+  </section>
+  <footer>
+    <p>&copy; 2023 Write Against the Machine</p>
+  </footer>
+  <script src="scripts.js"></script>
 </body>
 </html>
