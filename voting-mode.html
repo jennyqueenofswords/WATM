@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <link rel="stylesheet" href="styles.css">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Write Against the Machine // Critique</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write Against the Machine // Critique</title>
 </head>
 <body>
   <header>
@@ -13,7 +16,7 @@
   </header>
   <section id="intro">
     <p>There's always a critic, isn't there? Two poems are below. Select which one you prefer and see if you're team human or team machine.</p>
-</section>
+  </section>
   <section id="poems">
     <div id="poem-1">
       <p>[Poem 1]</p>
@@ -24,16 +27,15 @@
       <button id="vote-2">Select Poem 2</button>
     </div>
   </section>
-  <section id="results" style="display: none;">
-    <p>The winning poem is: [Winning Poem]</p>
-    <p>Authorship: [Human or AI]</p>
-    <p>AI critic's choice: [AI Critic's Choice]</p>
-    <p>Voting statistics: [Stats]</p>
+  <section id="results" style="display:none;">
+    <p id="winning-poem-result">The winning poem is: [Winning Poem]</p>
+    <p id="authorship-result">Authorship: [Human or AI]</p>
+    <p id="ai-critic-choice">AI critic's choice: [AI Critic's Choice]</p>
+    <p id="voting-stats">Voting statistics: [Stats]</p>
   </section>
   <footer>
     <p>&copy; 2023 Write Against the Machine</p>
-</footer>
-    <script src="writing-mode.js"></script>
-    <script src="voting-mode.js"></script>
+  </footer>
+  <script src="scripts.js"></script>
 </body>
 </html>

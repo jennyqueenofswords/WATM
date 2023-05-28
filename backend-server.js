@@ -1,12 +1,44 @@
+const express = require("express");
+const cors = require("cors");
+const fs = require("fs-extra");
 const axios = require("axios");
+const BadWordsFilter = require("bad-words");
 
-const OPENAI_API_KEY = "YOUR_API_KEY"; // REPLACE WITH YOUR API KEY
-const OPENAI_API_URL = "https://api.openai.com/v1/engines/davinci-codex/completions"; // GPT-3.5-turbo endpoint
+const PORT = process.env.PORT || 3000;
+const OPENAI_API_KEY = "YOUR_API_KEY";
+const OPENAI_API_URL = "https://api.openai.com/v1/engines/davinci-codex/completions";
 
-const openaiHeaders = {
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${OPENAI_API_KEY}`
-};
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const filter = new BadWordsFilter();
+
+const poemsDir = "./poems";
+fs.ensureDirSync(poemsDir);
+
+function hasInappropriateContent(text) {
+  return filter.isProfane(text);
+}
+
+function generateRandomWords(num_words) {
+  const allWords = [
+    "sun", "moon", "stars", "clouds", "rain", "snow", "wind", "storm",
+  ];
+
+  const randomWords = [];
+  for (let i = 0; i < num_words; i++) {
+    const randomIndex = Math.floor(Math.random() * allWords.length);
+    randomWords.push(allWords[randomIndex]);
+  }
+
+  return randomWords;
+}
+
+async function savePoem(poemData) {
+  const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
+  await fs.writeJSON(poemFile, poemData);
+}
 
 async function generatePoem(prompt, randomWords) {
   try {
@@ -18,7 +50,7 @@ async function generatePoem(prompt, randomWords) {
         max_tokens: 200,
         temperature: 0.7
       },
-      { headers: openaiHeaders }
+      { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_API_KEY}` } }
     );
 
     return aiResponse.data.choices[0]?.text.trim();
@@ -28,8 +60,17 @@ async function generatePoem(prompt, randomWords) {
   }
 }
 
+app.post("/submitPoem", async (req, res) => {
+  const poemData = req.body;
+  if (hasInappropriateContent(poemData.poem)) {
+    res.status(400).send("Inappropriate content detected.");
+  } else {
+    await savePoem(poemData);
+    res.send("Poem submitted");
+  }
+});
+
 app.get("/ai_poem", async (req, res) => {
-  // Use the same random words for both the human writer and the AI writer
   const randomWords = req.query.randomWords.split(",");
   const prompt = "Compose a striking poem that will amaze a reader";
   const generatedPoem = await generatePoem(prompt, randomWords);
@@ -40,95 +81,51 @@ app.get("/ai_poem", async (req, res) => {
     res.status(500).json({ error: "Unable to generate poem" });
   }
 });
-// Express route for poem submission
-app.post('/submitPoem', (req, res) => {
-  const poemData = req.body;
-  // Add moderation system and poem storage logic here
-  res.send('Poem submitted');
+
+app.get("/random_words", (req, res) => {
+  res.json({ randomWords: generateRandomWords(5) });
 });
 
-const express = require('express');
-const cors = require('cors');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Fetch leaderboard data
-async function getLeaderboardData() {
-  // Replace with actual leaderboard data fetching implementation
-  return [
-    { name: "Alice", winRate: 0.85 },
-    { name: "Bob", winRate: 0.83 },
-    { name: "Charlie", winRate: 0.81 },
-  ];
-}
-
-app.get('/leaderboard', async (req, res) => {
-  const leaderboardData = await getLeaderboardData();
-  res.json(leaderboardData);
-});
-
-// Add this function to update the leaderboard upon a poem's submission
-function updateLeaderboard(writerName, winRate, authenticated = false) {
-  // Add logic to determine how writerName should be displayed in the leaderboard
-  const nameDisplay = authenticated ? writerName : 'Anonymous';
-  leaderboardData.push({ name: nameDisplay, winRate, isAI: false });
-
-  // Sort leaderboardData by winRate in descending order
-  leaderboardData.sort((a, b) => b.winRate - a.winRate);
-}
-
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-const BadWordsFilter = require('bad-words');
-const filter = new BadWordsFilter();
+const openaiApiKey = "YOUR_OPENAI_API_KEY";
 
-// ...
+async function getAiCritique(poem1, poem2) {
+  const apiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
+  const prompt = `Read these two poems and provide feedback for each: \n\nPoem 1: ${poem1}\nPoem 2: ${poem2}`;
+  
+  try {
+    const response = await axios.post(
+      apiUrl,
+      {
+        prompt: prompt,
+        max_tokens: 100,
+        temperature: 0.5,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${openaiApiKey}`,
+        },
+      }
+    );
 
-// Add this function to check if the content contains inappropriate words
-function hasInappropriateContent(text) {
-  return filter.isProfane(text);
-}
-
-// Use this function to moderate submitted poems before processing them
-app.post('/submitPoem', (req, res) => {
-  const poemData = req.body;
-  if (hasInappropriateContent(poemData.poem)) {
-    res.status(400).send('Inappropriate content detected.');
-  } else {
-    // Add approved poem storage logic here
-    res.send('Poem submitted');
+    return response.data.choices[0].text.trim();
+  } catch (error) {
+    console.error("Error fetching critique:", error);
+    return null;
   }
-});
-const fs = require('fs-extra');
-
-// Use these lines to create a folder for storing poems
-const poemsDir = './poems';
-fs.ensureDirSync(poemsDir);
-
-// ...
-
-// Add this function to save the poem as a JSON file
-async function savePoem(poemData) {
-  const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
-  await fs.writeJSON(poemFile, poemData);
 }
 
-// Modify the '/submitPoem' route to save the poem using savePoem function
-app.post('/submitPoem', async (req, res) => {
-  const poemData = req.body;
-  if (hasInappropriateContent(poemData.poem)) {
-    res.status(400).send('Inappropriate content detected.');
+app.post("/ai_critique", async (req, res) => {
+  const poem1 = req.body.poem1;
+  const poem2 = req.body.poem2;
+  const feedback = await getAiCritique(poem1, poem2);
+
+  if (feedback) {
+    res.send({ review: feedback });
   } else {
-    await savePoem(poemData);
-    if (poemData.authenticated) {
-      updateLeaderboard(poemData.writerName, poemData.winRate, true);
-    } else {
-      updateLeaderboard(null, poemData.winRate, false);
-    }
-    res.send('Poem submitted');
+    res.status(500).send("Unable to generate review");
   }
 });

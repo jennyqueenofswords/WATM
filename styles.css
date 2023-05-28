@@ -1,34 +1,47 @@
+/* styles.css */
+
 * {
     box-sizing: border-box;
-}
-
-body {
-    /* Add these lines to smoothly transition between different styles */
+  }
+  
+  body {
+    font-family: Adobe Garamond, serif;
     -webkit-transition: background-color 0.5s ease;
     -moz-transition: background-color 0.5s ease;
     -o-transition: background-color 0.5s ease;
     transition: background-color 0.5s ease;
   }
   
-  button:hover {
-    /* Add button hover state for micro-interaction */
+  button {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    padding: 12px 24px;
+    border: none;
     background-color: var(--accent-color);
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    text-transform: uppercase;
   }
-
-header {
+  
+  button:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  header {
     background-color: #f5f5f5;
     padding: 20px;
     text-align: center;
-}
-
-section {
-    margin: 20px;
-}
-body {
-    font-family: Adobe Garamond, serif;
   }
   
-  h1, h2, h3 {
+  section {
+    margin: 20px;
+  }
+  
+  h1,
+  h2,
+  h3 {
     font-family: Rubik, sans-serif;
   }
   
@@ -39,4 +52,46 @@ body {
     --accent-color: #F3EFEF;
     --background-color: #EAD9C4;
     --text-color: #3C2F2F;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .container button {
+    margin: 0 10px;
+  }
+  /* Styles for animations and micro-interactions */
+@keyframes submitbtn-animation {
+    0% {
+      transform: scale(1);
+      background-color: var(--accent-color);
+    }
+    50% {
+      transform: scale(1.05);
+      background-color: var(--secondary-color);
+    }
+    100% {
+      transform: scale(1);
+      background-color: var(--accent-color);
+    }
+  }
+  
+  .submit-btn.animate {
+    animation: submitbtn-animation 1s ease;
+  }
+  
+  .submit-btn:active {
+    transform: scale(0.95);
+  }
+  
+  .vote-btn {
+    display: inline-block;
+    margin: 5px 0;
+  }
+  
+  .vote-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }

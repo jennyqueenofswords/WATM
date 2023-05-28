@@ -2,36 +2,36 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" href="styles.css">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Write Against the Machine // Compose</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write Against the Machine // Compose</title>
 </head>
 <body>
   <header>
     <h1>Let's see what you're made of.</h1>
   </header>
   <section id="intro">
-    <p>Below you will find five words. You must compose a poem using all five of these words. Bonus points for using proper poetry forms in your composiiton.</p>
-</section>
-<div id="random-words-container">
-  <!-- This div will display the five random words -->
-</div>
+    <p>Below you will find five words. You must compose a poem using all five of these words. Bonus points for using proper poetry forms in your composition.</p>
+  </section>
+  <div id="random-words-container">
+    <!-- This div will display the five random words -->
+  </div>
   <section id="user-poem">
-    <form id="poem-submission-form">
+    <form id="poem-submission-form" onsubmit="event.preventDefault(); submitPoem();">
       <textarea placeholder="Compose your poem here" required></textarea>
       <!-- Writing Mode submit button with animation trigger -->
-<button class="submit-btn" onclick="animateSubmit(); submitPoem();">Submit</button>
-    </form>
-  </section>
-  <section id="ai-poem" style="display: none;">
-    <p>AI-generated poem: [AI's_poem_here]</p>
-    <p>AI critic's review: [AI_critic's_review_here]</p>
-  </section>
-  <footer>
-    <p>&copy; 2023 Write Against the Machine</p>
+      <button class="submit-btn" onclick="animateSubmit();">
+<button class="submit-btn" onclick="animateSubmit();">Submit</button>
+</form>
+</section>
+<section id="ai-poem" style="display:none;">
+<p id="ai-generated-poem">AI-generated poem: [AI's_poem_here]</p>
+<p id="ai-critic-review">AI critic's review: [AI_critic's_review_here]</p>
+</section>
+<footer>
+<p>&copy; 2023 Write Against the Machine</p>
 </footer>
-<script src="writing-mode.js"></script>
-<script src="voting-mode.js"></script>
+<script src="scripts.js"></script>
 </body>
 </html>
