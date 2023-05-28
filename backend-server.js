@@ -3,7 +3,6 @@ const cors = require("cors");
 const fs = require("fs-extra");
 const axios = require("axios");
 const BadWordsFilter = require("bad-words");
-
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -16,27 +15,23 @@ app.use(cors());
 app.use(express.json());
 
 const filter = new BadWordsFilter();
-
-
 const poemsDir = "./poems";
 fs.ensureDirSync(poemsDir);
 
-function hasInappropriateContent(text) {
-  return filter.isProfane(text);
-}
+// Function to check for inappropriate content
+const hasInappropriateContent = (text) => filter.isProfane(text);
 
-const randomWords = require('random-words');
+// Function to generate random words
+const generateRandomWords = (num_words) => randomWords({ exactly: num_words });
 
-function generateRandomWords(num_words) {
-  return randomWords({ exactly: num_words });
-}
-
-async function savePoem(poemData) {
+// Function to save a poem
+const savePoem = async (poemData) => {
   const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
   await fs.writeJSON(poemFile, poemData);
-}
+};
 
-async function generatePoem(prompt, randomWords) {
+// Function to generate a poem
+const generatePoem = async (prompt, randomWords) => {
   try {
     const aiPrompt = `Compose a poem using the words ${randomWords.join(", ")}:\n\n${prompt}`;
     const aiResponse = await axios.post(
@@ -48,15 +43,15 @@ async function generatePoem(prompt, randomWords) {
       },
       { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_API_KEY}` } }
     );
-
     return aiResponse.data.choices[0]?.text.trim();
   } catch (error) {
     console.error("Error generating poem:", error);
     return null;
   }
-}
+};
 
-app.post("/submitPoem", async (req, res) => {
+// Endpoint to submit a poem
+app.post("/poems", async (req, res) => {
   const poemData = req.body;
   if (hasInappropriateContent(poemData.poem)) {
     res.status(400).send("Inappropriate content detected.");
@@ -66,11 +61,11 @@ app.post("/submitPoem", async (req, res) => {
   }
 });
 
+// Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
-const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords.split(",");
+  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords.split(",");
   const prompt = "Compose a striking poem that will amaze a reader";
   const generatedPoem = await generatePoem(prompt, randomWords);
-
   if (generatedPoem) {
     res.json({ poem: generatedPoem });
   } else {
@@ -78,20 +73,20 @@ const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords
   }
 });
 
+// Endpoint to get random words
 app.get("/random_words", (req, res) => {
   res.json({ randomWords: generateRandomWords(5) });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-const openaiApiKey = "YOUR_OPENAI_API_KEY";
 
+// Endpoint to get an AI critique
 app.post("/ai_critique", async (req, res) => {
-  const poem1 = req.body.poem1;
-  const poem2 = req.body.poem2;
+  const { poem1, poem2 } = req.body;
   const feedback = await getAiCritique(poem1, poem2);
-
   if (feedback) {
     res.send({ review: feedback });
   } else {
@@ -99,10 +94,9 @@ app.post("/ai_critique", async (req, res) => {
   }
 });
 
-/* Add the GPT-3 Requests for AI critique */
+// Function to get an AI critique
 async function getAiCritique(poem1, poem2) {
   const prompt = `Read these two poems and provide feedback for each: \n\nPoem 1: ${poem1}\nPoem 2: ${poem2}`;
-  
   try {
     const response = await axios.post(
       OPENAI_API_URL,
@@ -118,31 +112,22 @@ async function getAiCritique(poem1, poem2) {
         },
       }
     );
-
     return response.data.choices[0].text.trim();
   } catch (error) {
     console.error("Error fetching critique:", error);
     return null;
   }
 }
-app.get("/random_words", (req, res) => {
-  res.json({ randomWords: generateRandomWords(5) });
-});
-app.post("/send_vote", (req, res) => {
+
+// Endpoint to send a vote
+app.post("/votes", (req, res) => {
   const voteData = req.body.vote;
   console.log("Received vote for Poem " + voteData);
   // Process the received vote (store in database, update stats, etc.)
   res.json({ message: "Vote processed successfully" });
 });
+
+// Default endpoint
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
-});
-app.get("/getPoemPair", async (req, res) => {
-  try {
-    const poems = await getPoemPair(); // This function should return a pair of poems
-    res.json({ poems: poems });
-  } catch (error) {
-    console.error("Error fetching poem pair:", error);
-    res.status(500).json({ error: "Unable to fetch poem pair" });
-  }
 });
