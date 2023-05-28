@@ -1,3 +1,5 @@
+const HEROKU_URL = "https://powerful-stream-53189.herokuapp.com/";
+
 document.body.addEventListener('click', function (event) {
   if (event.target.tagName === 'BUTTON') {
     const buttonId = event.target.id.split('-')[1];
@@ -25,7 +27,7 @@ async function submitPoem() {
   const poemData = { poem: escapedPoem };
 
   try {
-    const response = await fetch("/submitPoem", {
+    const response = await fetch(HEROKU_URL + "/submitPoem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +61,7 @@ function displayAiPoem(poem) {
 async function processVote(vote) {
   console.log("Processing vote for Poem " + vote);
   try {
-    const response = await fetch("/send_vote", {
+    const response = await fetch(HEROKU_URL + "/send_vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vote: vote })
@@ -78,7 +80,7 @@ async function processVote(vote) {
 
 async function fetchRandomWords() {
   try {
-    const response = await fetch("/random_words");
+    const response = await fetch(HEROKU_URL + "/random_words");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -103,6 +105,7 @@ function animateSubmit() {
     submitBtn.classList.remove("animate");
   }, 1000);
 }
+
 function showModal(message) {
   const modal = document.createElement("div");
   modal.classList.add("modal");
