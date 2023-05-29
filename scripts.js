@@ -30,7 +30,7 @@ const generatePoem = async () => {
 
 // Function to get random words from server
 const getRandomWords = async () => {
-  const response = await fetch(`/random-words`);
+  const response = await fetch(`${HEROKU_URL}/random-words`);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
