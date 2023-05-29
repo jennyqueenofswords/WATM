@@ -35,6 +35,7 @@ const getRandomWords = async () => {
     const data = await response.json();
     const wordsContainer = document.getElementById("random-words-container");
     wordsContainer.innerHTML = "";
+    console.log("Data:", data);
     data.forEach((word) => {
       const span = document.createElement("span");
       span.textContent = word + " ";
