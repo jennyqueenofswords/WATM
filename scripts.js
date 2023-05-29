@@ -103,3 +103,10 @@ const displayVotingPoems = (poems) => {
   humanPoemSection.style.display = "block";
   aiPoemSection.style.display = "block";
 };
+window.addEventListener("load", async () => {
+  try {
+    await getRandomWords();
+  } catch (error) {
+    console.error("Error getting random words:", error);
+  }
+});
