@@ -140,7 +140,7 @@ const displayRandomWords = (words) => {
   randomWordsContainer.textContent = words;
 };
 
-fetch("/random-words")
+fetch(`https://powerful-stream-53189.herokuapp.com/random-words`)
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error(error));
