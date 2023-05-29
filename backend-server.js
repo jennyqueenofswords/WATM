@@ -3,6 +3,7 @@ const cors = require("cors");
 const fs = require("fs-extra");
 const axios = require("axios");
 const BadWordsFilter = require("bad-words");
+const randomWords = require("random-words");
 const dotenv = require("dotenv");
 dotenv.config();
 
