@@ -143,7 +143,7 @@ const displayRandomWords = (words) => {
 // Function to fetch random words
 const fetchRandomWords = async () => {
   try {
-    const response = await fetch(`${HEROKU_URL}/random_words`);
+    const response = await fetch(`/random_words`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
