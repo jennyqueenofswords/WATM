@@ -1,5 +1,5 @@
 // Base URL for the backend server
-const HEROKU_URL = "https://powerful-stream-53189.herokuapp.com/";
+const HEROKU_URL = "https://powerful-stream-53189.herokuapp.com";
 
 // Event listener for button clicks
 document.body.addEventListener('click', (event) => {
@@ -140,7 +140,7 @@ const displayRandomWords = (words) => {
   randomWordsContainer.textContent = words;
 };
 
-fetch("random-words")
+fetch("/random-words")
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error(error));
