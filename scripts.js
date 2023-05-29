@@ -42,6 +42,7 @@ const getRandomWords = async () => {
     wordSpan.textContent = word;
     randomWordsContainer.appendChild(wordSpan);
   });
+};
 
 // Function to save user's poem to database
 const savePoem = async (poem, name, link, randomWords) => {
