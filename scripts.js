@@ -140,26 +140,10 @@ const displayRandomWords = (words) => {
   randomWordsContainer.textContent = words;
 };
 
-// Function to fetch random words
-const fetchRandomWords = async () => {
-  try {
-    const response = await fetch(`/random_words`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    displayRandomWords(result);
-  } catch (error) {
-    console.error("Error fetching random words:", error);
-  }
-};
-
-// Fetch random words on page load
-window.addEventListener("load", () => {
-  fetchRandomWords();
-});
+fetch("/random-words")
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
 
 // Function to animate submit button
 const animateSubmit = () => {
