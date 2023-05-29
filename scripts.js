@@ -82,6 +82,16 @@ const handleSubmit = async (event) => {
   }
 };
 
+const showModal = (message) => {
+  const modal = document.createElement("div");
+  modal.classList.add("modal");
+  modal.textContent = message;
+  document.body.appendChild(modal);
+  setTimeout(() => {
+    modal.remove();
+  }, 3000);
+};
+
 // Add event listener to poem submission form
 const submitButton = document.getElementById("submit-button");
 if (submitButton) {
