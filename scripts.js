@@ -81,8 +81,10 @@ const handleSubmit = async (event) => {
 };
 
 // Add event listener to poem submission form
-const poemForm = document.getElementById("poem-submission-form");
-poemForm.addEventListener("submit", handleSubmit);
+const submitButton = document.getElementById("submit-button");
+if (submitButton) {
+  submitButton.addEventListener("click", handleSubmit);
+}
 
 // Function to display poems for voting
 const displayVotingPoems = (poems) => {
