@@ -66,7 +66,10 @@ const handleSubmit = async (event) => {
   event.preventDefault();
   try {
     const poemTextarea = document.querySelector("#poem-submission-form textarea");
-    const escapedPoem = escapeHtml(poemTextarea.value);
+    if (!poemTextarea) {
+      throw new Error("Poem textarea not found");
+    }
+    const escapedPoem = escapeHtml(poemTextarea.value || "");
     const result = await generatePoem(escapedPoem);
     const aiGeneratedPoem = document.getElementById("ai-generated-poem");
     const aiCriticReview = document.getElementById("ai-critic-review");
