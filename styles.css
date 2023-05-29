@@ -151,3 +151,6 @@ h2 {
 .modal-content button {
   margin-top: 10px;
 }
+.used-word {
+  color: red;
+}
