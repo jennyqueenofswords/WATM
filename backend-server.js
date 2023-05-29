@@ -77,7 +77,7 @@ app.get("/ai_poem", async (req, res) => {
 });
 
 app.get("/random-words", (req, res) => {
-  const words = randomWords({ exactly: 5, join: " " });
+  const words = randomWords({ exactly: 5 });
   res.json(words);
 });
 
