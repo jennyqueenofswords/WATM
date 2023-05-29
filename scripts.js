@@ -1,4 +1,4 @@
-const HEROKU_URL = "https://your-heroku-app.herokuapp.com";
+const HEROKU_URL = "https://powerful-stream-53189.herokuapp.com";
 
 // Function to escape HTML characters
 const escapeHtml = (text) => {
