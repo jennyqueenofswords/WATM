@@ -31,11 +31,11 @@ const generatePoem = async () => {
 // Function to get random words from server
 const getRandomWords = async () => {
   try {
-    const response = await fetch(`${HEROKU_URL}/ai_poem?randomWords=${randomWords.join(",")}`);
+    const response = await fetch(`${HEROKU_URL}/random-words`);
     const data = await response.json();
     const wordsContainer = document.getElementById("random-words-container");
     wordsContainer.innerHTML = "";
-    data.poem.split(" ").forEach((word) => {
+    data.forEach((word) => {
       const span = document.createElement("span");
       span.textContent = word + " ";
       wordsContainer.appendChild(span);
