@@ -30,18 +30,19 @@ const generatePoem = async () => {
 
 // Function to get random words from server
 const getRandomWords = async () => {
-  const response = await fetch(`${HEROKU_URL}/random-words`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    const response = await fetch(`${HEROKU_URL}/ai_poem?randomWords=${randomWords.join(",")}`);
+    const data = await response.json();
+    const wordsContainer = document.getElementById("random-words-container");
+    wordsContainer.innerHTML = "";
+    data.poem.split(" ").forEach((word) => {
+      const span = document.createElement("span");
+      span.textContent = word + " ";
+      wordsContainer.appendChild(span);
+    });
+  } catch (error) {
+    console.error("Error getting random words:", error);
   }
-  const words = await response.json();
-  const randomWordsContainer = document.getElementById("random-words-container");
-  randomWordsContainer.innerHTML = "";
-  words.forEach((word) => {
-    const wordSpan = document.createElement("span");
-    wordSpan.textContent = word;
-    randomWordsContainer.appendChild(wordSpan);
-  });
 };
 
 // Function to save user's poem to database
