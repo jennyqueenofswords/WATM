@@ -23,21 +23,32 @@
   <section id="intro">
     <p>Below you will find five words. You must compose a poem using all five of these words. Bonus points for using proper poetry forms in your composition.</p>
   </section>
-  <div id="random-words-container">
-    <!-- This div will display the five random words -->
+  <div>
+    <ul id="random-words-container"></ul>
   </div>
   <section id="user-poem">
-    <form id="poem-submission-form" onsubmit="event.preventDefault(); submitPoem();">
-      <textarea placeholder="Compose your poem here" required></textarea>
-      <button class="submit-btn" onclick="animateSubmit();">Submit</button>
+    <form>
+      <label for="poem-title">Title:</label>
+      <input type="text" id="poem-title" name="poem-title" required />
+      <br />
+      <label for="author-name">Author:</label>
+      <input type="text" id="author-name" name="author-name" required />
+      <br />
+      <label for="poem-url">URL:</label>
+      <input type="url" id="poem-url" name="poem-url" />
+      <br />
+      <label for="poem-text">Poem:</label>
+      <textarea id="poem-text" name="poem-text" required></textarea>
+      <br />
+      <button type="submit">Submit</button>
     </form>
   </section>
   <div id="loading-spinner" style="display:none;">
     <div class="spinner"></div>
   </div>
   <section id="ai-poem" style="display:none;">
-    <p id="ai-generated-poem">AI-generated poem: [AI's_poem_here]</p>
-    <p id="ai-critic-review">AI critic's review: [AI_critic's_review_here]</p>
+    <p id="ai-generated-poem"></p>
+    <p id="ai-critic-review"></p>
   </section>
   <footer>
     <p>&copy; 2023 Write Against the Machine</p>
