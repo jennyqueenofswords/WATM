@@ -23,13 +23,15 @@ fs.ensureDirSync(poemsDir);
 const hasInappropriateContent = (text) => filter.isProfane(text);
 
 // Function to generate random words
-const generateRandomWords = (num_words) => randomWords({ exactly: num_words });
+// An array of 5 random words generated using the randomWords library.
+const words = randomWords({ exactly: 5, join: " " });
+console.log(words);
 
 // Function to save a poem
-const savePoem = async (poemData) => {
+async function savePoem(poemData) {
   const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
   await fs.writeJSON(poemFile, poemData);
-};
+}
 
 // Function to generate a poem
 const generatePoem = async (prompt, randomWords) => {
@@ -74,9 +76,9 @@ app.get("/ai_poem", async (req, res) => {
   }
 });
 
-// Endpoint to get random words
-app.get("/random_words", (req, res) => {
-  res.json({ randomWords: generateRandomWords(5) });
+app.get("/random-words", (req, res) => {
+  const words = randomWords({ exactly: 5, join: " " });
+  res.json(words);
 });
 
 // Start the server

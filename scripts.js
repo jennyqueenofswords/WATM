@@ -134,6 +134,12 @@ const processVote = async (vote) => {
   }
 };
 
+// Function to display random words
+const displayRandomWords = (words) => {
+  const randomWordsContainer = document.querySelector(".random-words-container");
+  randomWordsContainer.textContent = words;
+};
+
 // Function to fetch random words
 const fetchRandomWords = async () => {
   try {
@@ -144,11 +150,16 @@ const fetchRandomWords = async () => {
     }
 
     const result = await response.json();
-    displayRandomWords(result.randomWords);
+    displayRandomWords(result);
   } catch (error) {
     console.error("Error fetching random words:", error);
   }
 };
+
+// Fetch random words on page load
+window.addEventListener("load", () => {
+  fetchRandomWords();
+});
 
 // Function to animate submit button
 const animateSubmit = () => {
