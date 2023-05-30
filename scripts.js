@@ -13,19 +13,24 @@ const escapeHtml = (text) => {
 };
 
 // Function to generate a poem
-const generatePoem = async () => {
-  const response = await fetch(`${HEROKU_URL}/generate-Poem`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+const generatePoem = async (poem) => {
+  try {
+    const response = await fetch("/api/generate-poem", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ poem }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error generating poem:", error);
+    throw error;
   }
-  const result = await response.json();
-  const randomWords = result.random_words;
-  const poem = result.poem;
-  const criticReview = result.critic_review;
-  const aiGeneratedPoem = document.getElementById("ai-generated-poem");
-  const aiCriticReview = document.getElementById("ai-critic-review");
-  aiGeneratedPoem.textContent = poem;
-  aiCriticReview.textContent = criticReview;
 };
 
 // Function to get random words from server
