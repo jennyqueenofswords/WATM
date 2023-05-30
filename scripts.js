@@ -65,7 +65,8 @@ const savePoem = async (poem, name, link, randomWords) => {
 const handleSubmit = async (event) => {
   event.preventDefault();
   try {
-    const poemTextarea = document.querySelector("#poem-submission-form textarea");
+    const poemTextarea = document.querySelector("#poem-text");
+    console.log("poemTextarea:", poemTextarea);
     if (!poemTextarea) {
       throw new Error("Poem textarea not found");
     }
