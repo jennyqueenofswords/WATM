@@ -14,7 +14,7 @@ const escapeHtml = (text) => {
 
 // Function to generate a poem
 const generatePoem = async () => {
-  const response = await fetch(`${HEROKU_URL}/generatePoem`);
+  const response = await fetch(`${HEROKU_URL}/generate-Poem`);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
