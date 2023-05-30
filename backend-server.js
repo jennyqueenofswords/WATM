@@ -134,3 +134,11 @@ app.post("/votes", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
 });
+
+// Endpoint to generate a poem
+app.post("/api/generate-poem", (req, res) => {
+  const prompt = req.body.prompt;
+  const randomWords = req.body.randomWords;
+  const poem = generatePoem(prompt, randomWords);
+  res.json({ poem: poem });
+});
