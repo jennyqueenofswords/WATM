@@ -83,10 +83,10 @@ app.get("/ai_poem", async (req, res) => {
 });
 
 app.get("/random-words", (req, res) => {
-  const words = randomWords({ exactly: 5 });
+  const words = ["apple", "banana", "cherry"];
+  res.header("Access-Control-Allow-Origin", "*");
   res.json(words);
 });
-
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
