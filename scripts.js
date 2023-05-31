@@ -25,11 +25,13 @@ async function getRandomWords() {
 // Function to generate and display a poem
 async function displayPoem() {
   try {
-    const randomWords = await fetch(`${HEROKU_URL}/random-words`).then((response) => response.json());
-    const poemResponse = await fetch(`${HEROKU_URL}/ai_poem?randomWords=${randomWords.join(",")}`);
+    const randomWordsResponse = await fetch(`${HEROKU_URL}/random-words`);
+    const randomWordsData = await randomWordsResponse.json();
+    const randomWords = randomWordsData.join(",");
+    const poemResponse = await fetch(`${HEROKU_URL}/ai_poem?randomWords=${randomWords}`);
     const poemData = await poemResponse.json();
     const poem = poemData.poem;
-    document.getElementById("poem").textContent = poem;
+    document.getElementById("ai-generated-poem").textContent = poem;
   } catch (error) {
     console.error(`Error generating poem: ${error}`);
   }
