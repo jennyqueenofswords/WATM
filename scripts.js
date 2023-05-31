@@ -26,7 +26,7 @@ async function getRandomWords() {
 const displayPoem = async () => {
   try {
     // Generate a set of 5 random words
-    const randomWords = await fetch("/random-words").then((response) => response.json());
+   const randomWords = await fetch(`${HEROKU_URL}/random-words`).then((response) => response.json());
     // Generate a poem using the random words
     const response = await fetch("/ai_poem?randomWords=" + randomWords.join(","));
     const result = await response.json();
