@@ -33,6 +33,19 @@ async function savePoem(poemData) {
   await fs.writeJSON(poemFile, poemData);
 }
 
+
+
+// Endpoint to submit a poem
+app.post("/poems", async (req, res) => {
+  const poemData = req.body;
+  if (hasInappropriateContent(poemData.poem)) {
+    res.status(400).send("Inappropriate content detected.");
+  } else {
+    await savePoem(poemData);
+    res.send("Poem submitted");
+  }
+});
+
 // Function to generate a poem
 const generatePoem = async (prompt, randomWords) => {
   try {
@@ -53,20 +66,13 @@ const generatePoem = async (prompt, randomWords) => {
   }
 };
 
-// Endpoint to submit a poem
-app.post("/poems", async (req, res) => {
-  const poemData = req.body;
-  if (hasInappropriateContent(poemData.poem)) {
-    res.status(400).send("Inappropriate content detected.");
-  } else {
-    await savePoem(poemData);
-    res.send("Poem submitted");
-  }
-});
-
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
-  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords.split(",");
+  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
+  if (!randomWords) {
+    res.status(400).json({ error: "Missing randomWords parameter" });
+    return;
+  }
   const prompt = "Compose a striking poem that will amaze a reader";
   const generatedPoem = await generatePoem(prompt, randomWords);
   if (generatedPoem) {
@@ -133,12 +139,4 @@ app.post("/votes", (req, res) => {
 // Default endpoint
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
-});
-
-// Endpoint to generate a poem
-app.post("/api/generate-poem", (req, res) => {
-  const prompt = req.body.prompt;
-  const randomWords = req.body.randomWords;
-  const poem = generatePoem(prompt, randomWords);
-  res.json({ poem: poem });
 });
