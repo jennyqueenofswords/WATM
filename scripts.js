@@ -12,44 +12,26 @@ const escapeHtml = (text) => {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 };
 
-// Function to generate a poem
-const generatePoem = async (poem) => {
+// Get the poem element from the DOM
+const poemElement = document.getElementById("ai-generated-poem");
+
+// Function to generate and display a poem
+const displayPoem = async () => {
   try {
-    const response = await fetch("/api/generate-poem", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ poem }),
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    // Generate a set of 5 random words
+    const randomWords = await fetch("/random-words").then((response) => response.json());
+    // Generate a poem using the random words
+    const response = await fetch("/ai_poem?randomWords=" + randomWords.join(","));
     const result = await response.json();
-    return result;
+    // Display the generated poem on the page
+    poemElement.textContent = result.poem;
   } catch (error) {
     console.error("Error generating poem:", error);
-    throw error;
   }
 };
 
-// Function to get random words from server
-const getRandomWords = async () => {
-  try {
-    const response = await fetch(`${HEROKU_URL}/random-words`);
-    const data = await response.json();
-    const wordsContainer = document.getElementById("random-words-container");
-    wordsContainer.innerHTML = "";
-    console.log("Data:", data);
-    data.forEach((word) => {
-      const span = document.createElement("span");
-      span.textContent = word + " ";
-      wordsContainer.appendChild(span);
-    });
-  } catch (error) {
-    console.error("Error getting random words:", error);
-  }
-};
+// Call the displayPoem function to generate and display a poem
+displayPoem();
 
 // Function to save user's poem to database
 const savePoem = async (poem, name, link, randomWords) => {
