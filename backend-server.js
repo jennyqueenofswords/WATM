@@ -140,3 +140,7 @@ app.post("/votes", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
 });
+
+console.log(`PORT: ${PORT}`);
+console.log(`OPENAI_API_KEY: ${OPENAI_API_KEY}`);
+console.log(`OPENAI_API_URL: ${OPENAI_API_URL}`);
