@@ -15,6 +15,13 @@ const escapeHtml = (text) => {
 // Get the poem element from the DOM
 const poemElement = document.getElementById("ai-generated-poem");
 
+
+async function getRandomWords() {
+  const response = await fetch(`${HEROKU_URL}/random-words`);
+  const data = await response.json();
+  return data.words;
+}
+
 // Function to generate and display a poem
 const displayPoem = async () => {
   try {
