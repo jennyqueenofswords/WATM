@@ -47,24 +47,27 @@ app.post("/poems", async (req, res) => {
 });
 
 // Function to generate a poem
-const generatePoem = async (prompt, randomWords) => {
-  try {
-    const aiPrompt = `Compose a poem using the words ${randomWords.join(", ")}:\n\n${prompt}`;
-    const aiResponse = await axios.post(
-      OPENAI_API_URL,
-      {
-        prompt: aiPrompt,
-        max_tokens: 100,
-        temperature: 0.8
-      },
-      { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_API_KEY}` } }
-    );
-    return aiResponse.data.choices[0]?.text.trim();
-  } catch (error) {
-    console.error("Error generating poem:", error);
-    return null;
-  }
-};
+async function generatePoem(prompt, randomWords) {
+  const response = await fetch(process.env.OPENAI_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      prompt: prompt,
+      max_tokens: 100,
+      temperature: 0.7,
+      n: 1,
+      stop: "\n",
+      prompt_suffix: randomWords.join(" "),
+    }),
+  });
+  console.log("OpenAI API response:", response); // log the API response
+  const data = await response.json();
+  const poem = data.choices[0].text.trim();
+  return poem;
+}
 
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
@@ -75,18 +78,15 @@ app.get("/ai_poem", async (req, res) => {
   }
   const prompt = "Compose a striking poem that will amaze a reader";
   const generatedPoem = await generatePoem(prompt, randomWords);
+  console.log("Generated poem:", generatedPoem); // log the generated poem
   if (generatedPoem) {
     res.json({ poem: generatedPoem });
   } else {
-    res.status(500).json({ error: "Unable to generate poem" });
+    res.status(500).json({ error: "Failed to generate poem" });
   }
 });
 
-app.get("/random-words", (req, res) => {
-  const words = ["apple", "banana", "cherry"];
-  res.header("Access-Control-Allow-Origin", "*");
-  res.json(words);
-});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
