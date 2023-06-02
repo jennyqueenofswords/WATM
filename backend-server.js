@@ -5,7 +5,8 @@ const axios = require("axios");
 const BadWordsFilter = require("bad-words");
 const randomWords = require("random-words");
 const dotenv = require("dotenv");
-dotenv.config();
+require('dotenv').config();
+console.log(process.env.OPENAI_API_KEY);
 
 const PORT = process.env.PORT || 4000;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
