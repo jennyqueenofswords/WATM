@@ -67,6 +67,11 @@ async function generatePoem(prompt, randomWords, apiKey) {
   }
 }
 
+// Route handler for the root endpoint
+app.get("/", (req, res) => {
+  res.send("Welcome to the Write Against the Machine API!");
+});
+
 // Endpoint to generate random words
 app.get("/random-words", (req, res) => {
   const numWords = req.query.numWords || 5;
@@ -105,3 +110,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+module.exports = startServer;
