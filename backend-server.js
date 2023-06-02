@@ -25,7 +25,7 @@ const hasInappropriateContent = (text) => filter.isProfane(text);
 // Function to generate random words
 function generateRandomWords(numWords) {
   return randomWords({ exactly: numWords, join: " " });
-}//
+}
 
 // An array of 5 random words generated using the randomWords library.
 const words = randomWords({ exactly: 5, join: " " });
@@ -37,7 +37,53 @@ async function savePoem(poemData) {
   await fs.writeJSON(poemFile, poemData);
 }
 
+// Function to generate a poem using the OpenAI API
+async function generatePoem(prompt, randomWords, apiKey) {
+  const apiUrl = "https://api.openai.com/v1/completions";
 
+  const response = await axios.post(apiUrl, {
+    prompt: prompt,
+    max_tokens: 100,
+    n: 1,
+    stop: "\n",
+    temperature: 0.5,
+    frequency_penalty: 0.5,
+    presence_penalty: 0.5,
+    model: "text-davinci-003",
+    prompt_suffix: "\n\n",
+    randomWords: randomWords
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    }
+  });
+
+  const poem = response.data.choices[0].text.trim();
+  return poem;
+}
+
+// Endpoint to generate random words
+app.get("/random-words", (req, res) => {
+  const numWords = req.query.numWords || 5;
+  const randomWords = generateRandomWords(numWords);
+  res.send(randomWords);
+});
+
+// Endpoint to get an AI-generated poem
+app.get("/ai_poem", async (req, res) => {
+  const prompt = "Compose a striking poem that will amaze a reader";
+  const randomWords = randomWords({ exactly: 5, join: " " });
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  try {
+    const poem = await generatePoem(prompt, randomWords, apiKey);
+    res.json({ poem: poem });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to generate poem" });
+  }
+});
 
 // Endpoint to submit a poem
 app.post("/poems", async (req, res) => {
@@ -50,106 +96,6 @@ app.post("/poems", async (req, res) => {
   }
 });
 
-async function generatePoem(prompt, randomWords) {
-  const response = await axios.post(apiUrl, {
-    "model": "text-davinci-003",
-    "prompt": "Compose a striking poem",
-    "max_tokens": 50,
-    "temperature": 0,
-    "top_p": 1,
-    "n": 1,
-    "stream": false,
-    "logprobs": null,
-    "stop": "\n"
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    }
-  });
-  const poem = await generatePoem(prompt, randomWords);
-  console.log(poem);
-}
-
-// Endpoint to generate random words
-app.get("/random-words", (req, res) => {
-  const numWords = req.query.numWords || 5;
-  const randomWords = generateRandomWords(numWords);
-  res.send(randomWords);
-});
-
-// Endpoint to get an AI-generated poem
-app.get("/ai_poem", async (req, res) => {
-  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
-  if (!randomWords) {
-    res.status(400).json({ error: "Missing randomWords parameter" });
-    return;
-  }
-  const prompt = "Compose a striking poem that will amaze a reader";
-  const generatedPoem = await generatePoem(prompt, randomWords);
-  console.log("Generated poem:", generatedPoem); // log the generated poem
-  if (generatedPoem) {
-    res.json({ poem: generatedPoem });
-  } else {
-    res.status(500).json({ error: "Failed to generate poem" });
-  }
-});
-
-
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });
-
-// Endpoint to get an AI critique
-app.post("/ai_critique", async (req, res) => {
-  const { poem1, poem2 } = req.body;
-  const feedback = await getAiCritique(poem1, poem2);
-  if (feedback) {
-    res.send({ review: feedback });
-  } else {
-    res.status(500).send("Unable to generate review");
-  }
-});
-
-// Function to get an AI critique
-async function getAiCritique(poem1, poem2) {
-  const prompt = `Read these two poems and provide feedback for each: \n\nPoem 1: ${poem1}\nPoem 2: ${poem2}`;
-  try {
-    const response = await axios.post(
-      OPENAI_API_URL,
-      {
-        prompt: prompt,
-        max_tokens: 100,
-        temperature: 0.5,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        },
-      }
-    );
-    return response.data.choices[0].text.trim();
-  } catch (error) {
-    console.error("Error fetching critique:", error);
-    return null;
-  }
-}
-
-// Endpoint to send a vote
-app.post("/votes", (req, res) => {
-  const voteData = req.body.vote;
-  console.log("Received vote for Poem " + voteData);
-  // Process the received vote (store in database, update stats, etc.)
-  res.json({ message: "Vote processed successfully" });
-});
-
-// Default endpoint
-app.get("/", (req, res) => {
-  res.send("Welcome to the Write Against the Machine API!");
-});
-
-console.log(`PORT: ${PORT}`);
-console.log(`OPENAI_API_KEY: ${OPENAI_API_KEY}`);
-console.log(`OPENAI_API_URL: ${OPENAI_API_URL}`);
