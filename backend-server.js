@@ -40,27 +40,33 @@ async function savePoem(poemData) {
 // Function to generate a poem using the OpenAI API
 async function generatePoem(prompt, randomWords, apiKey) {
   const apiUrl = "https://api.openai.com/v1/completions";
+  console.log(`Prompt: ${prompt}`);
+  console.log(`Random words: ${randomWords}`);
+  try {
+    const response = await axios.post(apiUrl, {
+      prompt: "compose a striking poem that will amaze a reader",
+      max_tokens: 100,
+      n: 1,
+      stop: "\n",
+      temperature: 0.5,
+      frequency_penalty: 0.5,
+      presence_penalty: 0.5,
+      model: "text-davinci-003",
+      prompt_suffix: "\n\n",
+      randomWords: randomWords
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
 
-  const response = await axios.post(apiUrl, {
-    prompt: prompt,
-    max_tokens: 100,
-    n: 1,
-    stop: "\n",
-    temperature: 0.5,
-    frequency_penalty: 0.5,
-    presence_penalty: 0.5,
-    model: "text-davinci-003",
-    prompt_suffix: "\n\n",
-    randomWords: randomWords
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    }
-  });
-
-  const poem = response.data.choices[0].text.trim();
-  return poem;
+    const poem = response.data.choices[0].text.trim();
+    return poem;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to generate poem");
+  }
 }
 
 // Endpoint to generate random words
