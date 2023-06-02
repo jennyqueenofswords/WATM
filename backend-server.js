@@ -4,10 +4,11 @@ import fs from "fs-extra";
 import axios from "axios";
 import BadWordsFilter from "bad-words";
 import randomWords from "random-words";
+import dotenv from "dotenv";
+dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 
-const express = require("express");
 const app = express();
 app.use(cors());
 app.use(express.json());
