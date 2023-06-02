@@ -100,7 +100,8 @@ app.post("/poems", async (req, res) => {
     res.send("Poem submitted");
   }
 });
-
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
+
