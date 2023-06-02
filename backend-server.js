@@ -23,6 +23,10 @@ fs.ensureDirSync(poemsDir);
 const hasInappropriateContent = (text) => filter.isProfane(text);
 
 // Function to generate random words
+function generateRandomWords(numWords) {
+  return randomWords({ exactly: numWords, join: " " });
+}
+
 // An array of 5 random words generated using the randomWords library.
 const words = randomWords({ exactly: 5, join: " " });
 console.log(words);
