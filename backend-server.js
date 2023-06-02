@@ -6,11 +6,10 @@ const BadWordsFilter = require("bad-words");
 const randomWords = require("random-words");
 const dotenv = require("dotenv");
 require('dotenv').config();
-console.log(process.env.OPENAI_API_KEY);
 
 const PORT = process.env.PORT || 4000;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_API_URL = "https://api.openai.com/v1/engines/gpt-3.5-turbo/completions";
+const OPENAI_API_URL = "https://api.openai.com/v1/completions";
 
 const app = express();
 app.use(cors());
@@ -26,7 +25,7 @@ const hasInappropriateContent = (text) => filter.isProfane(text);
 // Function to generate random words
 function generateRandomWords(numWords) {
   return randomWords({ exactly: numWords, join: " " });
-}
+}//
 
 // An array of 5 random words generated using the randomWords library.
 const words = randomWords({ exactly: 5, join: " " });
@@ -51,27 +50,25 @@ app.post("/poems", async (req, res) => {
   }
 });
 
-// Function to generate a poem
 async function generatePoem(prompt, randomWords) {
-  const response = await fetch(process.env.OPENAI_API_URL, {
-    method: "POST",
+  const response = await axios.post(apiUrl, {
+    "model": "text-davinci-003",
+    "prompt": "Compose a striking poem",
+    "max_tokens": 50,
+    "temperature": 0,
+    "top_p": 1,
+    "n": 1,
+    "stream": false,
+    "logprobs": null,
+    "stop": "\n"
+  }, {
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      prompt: prompt,
-      max_tokens: 100,
-      temperature: 0.7,
-      n: 1,
-      stop: "\n",
-      prompt_suffix: randomWords.join(" "),
-    }),
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    }
   });
-  console.log("OpenAI API response:", response); // log the API response
-  const data = await response.json();
-  const poem = data.choices[0].text.trim();
-  return poem;
+  const poem = await generatePoem(prompt, randomWords);
+  console.log(poem);
 }
 
 // Endpoint to generate random words
