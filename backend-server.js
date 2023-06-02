@@ -1,15 +1,11 @@
-const express = require("express");
-const cors = require("cors");
-const fs = require("fs-extra");
-const axios = require("axios");
-const BadWordsFilter = require("bad-words");
-const dotenv = require("dotenv");
-const randomWords = require("random-words");
-require('dotenv').config();
+import express from "express";
+import cors from "cors";
+import fs from "fs-extra";
+import axios from "axios";
+import BadWordsFilter from "bad-words";
+import randomWords from "random-words";
 
 const PORT = process.env.PORT || 4000;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_API_URL = "https://api.openai.com/v1/completions";
 
 const app = express();
 app.use(cors());
