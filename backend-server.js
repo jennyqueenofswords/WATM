@@ -3,8 +3,8 @@ const cors = require("cors");
 const fs = require("fs-extra");
 const axios = require("axios");
 const BadWordsFilter = require("bad-words");
-const randomWords = require("random-words");
 const dotenv = require("dotenv");
+const randomWords = require("random-words");
 require('dotenv').config();
 
 const PORT = process.env.PORT || 4000;
@@ -70,14 +70,15 @@ app.get("/random-words", (req, res) => {
   res.send(randomWords);
 });
 
+
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
   const prompt = "Compose a striking poem that will amaze a reader";
-  const randomWords = randomWords({ exactly: 5, join: " " });
+  const randomWordsList = randomWords({ exactly: 5, join: " " });
   const apiKey = process.env.OPENAI_API_KEY;
 
   try {
-    const poem = await generatePoem(prompt, randomWords, apiKey);
+    const poem = await generatePoem(prompt, randomWordsList, apiKey);
     res.json({ poem: poem });
   } catch (error) {
     console.error(error);
