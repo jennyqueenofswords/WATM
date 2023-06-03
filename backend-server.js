@@ -34,20 +34,16 @@ async function savePoem(poemData) {
 // Function to generate a poem using the OpenAI API
 async function generatePoem(randomWords, apiKey) {
   const apiUrl = "https://api.openai.com/v1/completions";
-  
-  // Log your parameters
-  console.log(randomWords, apiKey);
-
   try {
     const response = await axios.post(apiUrl, {
       prompt: `Compose a striking poem that will amaze a reader. Please use the following words: ${randomWords.join(", ")}`,
       max_tokens: 100,
       n: 1,
-      stop: "\n",
-      temperature: 0.5,
+      stop: [".", "?", "!"],
+      temperature: 0.8,
       frequency_penalty: 0.5,
       presence_penalty: 0.5,
-      model: "text-davinci-003"
+      model: "text-davinci-003",
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -55,15 +51,17 @@ async function generatePoem(randomWords, apiKey) {
       }
     });
   
+    // Log the whole response
+    console.log(response.data);
+  
     const poem = response.data.choices[0].text.trim();
     return poem;
   } catch (error) {
-    // Log the error details from OpenAI
-    console.error(error.response.data);
-
+    console.error(error);
     throw new Error("Failed to generate poem");
   }
 }
+
 
 
 
