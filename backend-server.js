@@ -25,10 +25,6 @@ function generateRandomWords(numWords) {
   return randomWords({ exactly: numWords, join: " " });
 }
 
-// An array of 5 random words generated using the randomWords library.
-const words = randomWords({ exactly: 5, join: " " });
-console.log(words);
-
 // Function to save a poem
 async function savePoem(poemData) {
   const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
@@ -36,14 +32,11 @@ async function savePoem(poemData) {
 }
 
 // Function to generate a poem using the OpenAI API
-async function generatePoem(prompt, _RandomWords, apiKey) {
+async function generatePoem(randomWords, apiKey) {
   const apiUrl = "https://api.openai.com/v1/completions";
-  console.log("prompt:", prompt);
-  console.log("randomWords:", randomWords);
-  console.log("apiKey:", apiKey);
   try {
     const response = await axios.post(apiUrl, {
-      prompt: "compose a striking poem that will amaze a reader",
+      prompt: `Compose a striking poem that will amaze a reader. Please use the following words: ${randomWords.join(', ')}`,
       max_tokens: 100,
       n: 1,
       stop: "\n",
@@ -51,8 +44,7 @@ async function generatePoem(prompt, _RandomWords, apiKey) {
       frequency_penalty: 0.5,
       presence_penalty: 0.5,
       model: "text-davinci-003",
-      prompt_suffix: "\n\n",
-      randomWords: randomWords.join(",")
+      prompt_suffix: "\n\n"
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -68,6 +60,34 @@ async function generatePoem(prompt, _RandomWords, apiKey) {
   }
 }
 
+// Function to get AI Critique
+async function getAiCritique(poem1, poem2, apiKey) {
+  const apiUrl = "https://api.openai.com/v1/completions";
+  try {
+    const response = await axios.post(apiUrl, {
+      prompt: `Here are two poems. Please provide a critique for each and select a favorite.\n\nPoem 1:\n${poem1}\n\nPoem 2:\n${poem2}`,
+      max_tokens: 300,
+      n: 1,
+      stop: "\n",
+      temperature: 0.5,
+      frequency_penalty: 0.5,
+      presence_penalty: 0.5,
+      model: "text-davinci-003",
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+
+    const feedback = response.data.choices[0].text.trim();
+    return feedback;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get critique");
+  }
+}
+
 // Route handler for the root endpoint
 app.get("/", (req, res) => {
   res.send("Welcome to the Write Against the Machine API!");
@@ -76,15 +96,14 @@ app.get("/", (req, res) => {
 // Endpoint to generate random words
 app.get("/random-words", (req, res) => {
   const numWords = req.query.numWords || 5;
-  const randomWords = generateRandomWords(numWords);
-  res.send(randomWords);
+  const words = generateRandomWords(numWords);
+  res.send(words);
 });
 
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
-  console.log("ai_poem endpoint called");
   const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
-  if (randomWords === undefined || randomWords === null || randomWords === "") {
+  if (randomWords === undefined || randomWords === null || randomWords.length === 0) {
     res.status(400).json({ error: "Missing randomWords parameter" });
     return;
   }
@@ -101,13 +120,14 @@ app.get("/ai_poem", async (req, res) => {
 // Endpoint to get an AI critique
 app.post("/ai_critique", async (req, res) => {
   const { poem1, poem2 } = req.body;
-  const feedback = await getAiCritique(poem1, poem2);
+  const feedback = await getAiCritique(poem1, poem2, process.env.OPENAI_API_KEY);
   if (feedback) {
     res.send({ review: feedback });
   } else {
     res.status(500).send("Unable to generate review");
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
