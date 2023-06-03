@@ -3,6 +3,7 @@ import cors from "cors";
 import fs from "fs-extra";
 import axios from "axios";
 import BadWordsFilter from "bad-words";
+import randomWords from "random-words";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -18,6 +19,15 @@ fs.ensureDirSync(poemsDir);
 
 // Function to check for inappropriate content
 const hasInappropriateContent = (text) => filter.isProfane(text);
+
+// Function to generate random words
+function generateRandomWords(numWords) {
+  return randomWords({ exactly: numWords, join: " " });
+}
+
+// An array of 5 random words generated using the randomWords library.
+const words = randomWords({ exactly: 5, join: " " });
+console.log(words);
 
 // Function to save a poem
 async function savePoem(poemData) {
@@ -66,7 +76,7 @@ app.get("/", (req, res) => {
 // Endpoint to generate random words
 app.get("/random-words", (req, res) => {
   const numWords = req.query.numWords || 5;
-  const randomWords = randomWords({ exactly: numWords, join: " " });
+  const randomWords = generateRandomWords(numWords);
   res.send(randomWords);
 });
 
@@ -83,7 +93,6 @@ app.get("/ai_poem", async (req, res) => {
 
   try {
     const poem = await generatePoem(prompt, randomWords, apiKey);
-    await savePoem({ poem: poem });
     res.json({ poem: poem });
   } catch (error) {
     console.error(error);
