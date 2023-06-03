@@ -102,8 +102,9 @@ app.get("/random-words", (req, res) => {
 
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
-  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
-  if (randomWords === undefined || randomWords === null || randomWords.length === 0) {
+  const randomWords = req.query.randomWords?.split(",");
+  
+  if (!randomWords || randomWords.length === 0) {
     res.status(400).json({ error: "Missing randomWords parameter" });
     return;
   }
