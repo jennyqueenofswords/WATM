@@ -34,13 +34,22 @@ async function savePoem(poemData) {
 // Function to generate a poem using the OpenAI API
 async function generatePoem(randomWords, apiKey) {
   const apiUrl = "https://api.openai.com/v1/completions";
+  
+  // Check that there are exactly five words
+  if (randomWords.length !== 5) {
+    throw new Error("Must provide exactly five random words");
+  }
+  
+  // Generate the prompt
+  const prompt = `Compose a striking poem that will amaze a reader. Please use the following words: ${randomWords[0]}, ${randomWords[1]}, ${randomWords[2]}, ${randomWords[3]}, ${randomWords[4]}`;
+
   try {
     const response = await axios.post(apiUrl, {
-      prompt: `Compose a striking poem that will amaze a reader. Please use the following words: ${randomWords.join(", ")}`,
+      prompt,
       max_tokens: 100,
       n: 1,
       stop: [".", "?", "!"],
-      temperature: 0.8,
+      temperature: 0.5,
       frequency_penalty: 0.5,
       presence_penalty: 0.5,
       model: "text-davinci-003",
@@ -51,22 +60,21 @@ async function generatePoem(randomWords, apiKey) {
       }
     });
   
-    // Log the whole response
-    console.log(response.data);
-  
     const poem = response.data.choices[0].text.trim();
     return poem;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate poem");
   }
-}
+} 
+
 
 
 
 
 // Function to get AI Critique
 async function getAiCritique(poem1, poem2, apiKey) {
+  console.log("randomWords:", randomWords);
   const apiUrl = "https://api.openai.com/v1/completions";
   try {
     const response = await axios.post(apiUrl, {
@@ -108,6 +116,7 @@ app.get("/random-words", (req, res) => {
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
   const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
+  console.log("randomWords:", randomWords);
   if (!randomWords || randomWords.length === 0) {
     res.status(400).json({ error: "Missing randomWords parameter" });
     return;
