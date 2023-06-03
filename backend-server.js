@@ -36,7 +36,7 @@ async function savePoem(poemData) {
 }
 
 // Function to generate a poem using the OpenAI API
-async function generatePoem(prompt, randomWords, apiKey) {
+async function generatePoem(prompt, _RandomWords, apiKey) {
   const apiUrl = "https://api.openai.com/v1/completions";
   console.log("prompt:", prompt);
   console.log("randomWords:", randomWords);
