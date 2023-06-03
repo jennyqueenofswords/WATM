@@ -88,11 +88,9 @@ app.get("/ai_poem", async (req, res) => {
     res.status(400).json({ error: "Missing randomWords parameter" });
     return;
   }
-  const prompt = "Compose a striking poem that will amaze a reader";
-  const apiKey = process.env.OPENAI_API_KEY;
 
   try {
-    const poem = await generatePoem(prompt, randomWords, apiKey);
+    const poem = await generatePoem(randomWords, process.env.OPENAI_API_KEY);
     res.json({ poem: poem });
   } catch (error) {
     console.error(error);
