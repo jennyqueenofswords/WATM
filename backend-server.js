@@ -74,7 +74,7 @@ app.get("/", (req, res) => {
 });
 
 // Endpoint to generate random words
-app.get("/random-words", (req, res) => {
+app.get("https://powerful-stream-53189.herokuapp.com/random-words", (req, res) => {
   const numWords = req.query.numWords || 5;
   const randomWords = generateRandomWords(numWords);
   res.send(randomWords);
@@ -82,7 +82,8 @@ app.get("/random-words", (req, res) => {
 
 
 // Endpoint to get an AI-generated poem
-app.get("/ai_poem", async (req, res) => {
+app.get("https://powerful-stream-53189.herokuapp.com/ai_poem", async (req, res) => {
+  console.log("ai_poem endpoint called");
   const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
   if (randomWords === undefined || randomWords === null || randomWords === "") {
     res.status(400).json({ error: "Missing randomWords parameter" });
@@ -102,7 +103,7 @@ app.get("/ai_poem", async (req, res) => {
 
 
 // Endpoint to get an AI critique
-app.post("/ai_critique", async (req, res) => {
+app.post("https://powerful-stream-53189.herokuapp.com/ai_critique", async (req, res) => {
   const { poem1, poem2 } = req.body;
   const feedback = await getAiCritique(poem1, poem2);
   if (feedback) {
