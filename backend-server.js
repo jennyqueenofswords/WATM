@@ -88,7 +88,6 @@ app.get("/ai_poem", async (req, res) => {
     return;
   }
   const prompt = "Compose a striking poem that will amaze a reader";
-  const randomWords = randomWords({ exactly: 5, join: " " });
   const apiKey = process.env.OPENAI_API_KEY;
 
   try {
