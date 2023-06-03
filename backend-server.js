@@ -47,8 +47,7 @@ async function generatePoem(randomWords, apiKey) {
       temperature: 0.5,
       frequency_penalty: 0.5,
       presence_penalty: 0.5,
-      model: "text-davinci-003",
-      prompt_suffix: "\n\n"
+      model: "text-davinci-003"
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -65,6 +64,7 @@ async function generatePoem(randomWords, apiKey) {
     throw new Error("Failed to generate poem");
   }
 }
+
 
 
 // Function to get AI Critique
@@ -109,8 +109,7 @@ app.get("/random-words", (req, res) => {
 
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
-  const randomWords = req.query.randomWords?.split(",");
-  
+  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
   if (!randomWords || randomWords.length === 0) {
     res.status(400).json({ error: "Missing randomWords parameter" });
     return;
@@ -124,6 +123,7 @@ app.get("/ai_poem", async (req, res) => {
     res.status(500).json({ error: "Failed to generate poem" });
   }
 });
+
 
 // Endpoint to get an AI critique
 app.post("/ai_critique", async (req, res) => {
