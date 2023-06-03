@@ -23,7 +23,7 @@ const hasInappropriateContent = (text) => filter.isProfane(text);
 // Function to generate random words
 function generateRandomWords(numWords) {
   return randomWords({ exactly: numWords, join: " " });
-}
+}//
 
 // An array of 5 random words generated using the randomWords library.
 const words = randomWords({ exactly: 5, join: " " });
@@ -82,12 +82,17 @@ app.get("/random-words", (req, res) => {
 
 // Endpoint to get an AI-generated poem
 app.get("/ai_poem", async (req, res) => {
+  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
+  if (!randomWords) {
+    res.status(400).json({ error: "Missing randomWords parameter" });
+    return;
+  }
   const prompt = "Compose a striking poem that will amaze a reader";
-  const randomWordsList = randomWords({ exactly: 5, join: " " });
+  const randomWords = randomWords({ exactly: 5, join: " " });
   const apiKey = process.env.OPENAI_API_KEY;
 
   try {
-    const poem = await generatePoem(prompt, randomWordsList, apiKey);
+    const poem = await generatePoem(prompt, randomWords, apiKey);
     res.json({ poem: poem });
   } catch (error) {
     console.error(error);
@@ -95,19 +100,23 @@ app.get("/ai_poem", async (req, res) => {
   }
 });
 
-// Endpoint to submit a poem
-app.post("/poems", async (req, res) => {
-  const poemData = req.body;
-  if (hasInappropriateContent(poemData.poem)) {
-    res.status(400).send("Inappropriate content detected.");
-  } else {
-    await savePoem(poemData);
-    res.send("Poem submitted");
-  }
-});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = startServer;
+// Endpoint to get an AI critique
+app.post("/ai_critique", async (req, res) => {
+  const { poem1, poem2 } = req.body;
+  const feedback = await getAiCritique(poem1, poem2);
+  if (feedback) {
+    res.send({ review: feedback });
+  } else {
+    res.status(500).send("Unable to generate review");
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
