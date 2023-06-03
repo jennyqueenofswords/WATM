@@ -100,11 +100,6 @@ app.get("/ai_poem", async (req, res) => {
 });
 
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 // Endpoint to get an AI critique
 app.post("/ai_critique", async (req, res) => {
   const { poem1, poem2 } = req.body;
