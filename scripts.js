@@ -16,29 +16,21 @@ const escapeHtml = (text) => {
 const poemElement = document.getElementById("ai-generated-poem");
 
 
-async function getRandomWords() {
-  const response = await fetch(`${HEROKU_URL}/random-words`);
-  const data = await response.json();
-  return data.words;
-}
-
-// Function to generate and display a poem
-async function displayPoem() {
+// Function to fetch and display random words
+async function displayRandomWords() {
   try {
-    const randomWordsResponse = await fetch(`${HEROKU_URL}/random-words`);
-    const randomWordsData = await randomWordsResponse.json();
-    const randomWords = randomWordsData.join(",");
-    const poemResponse = await fetch(`${HEROKU_URL}/ai_poem?randomWords=${randomWords}`);
-    const poemData = await poemResponse.json();
-    const poem = poemData.poem;
-    document.getElementById("ai-generated-poem").textContent = poem;
+    const response = await fetch(`${HEROKU_URL}/random-words`);
+    const data = await response.json();
+    const randomWordsElement = document.getElementById("randomwords");
+    randomWordsElement.textContent = data.words.join(", ");
   } catch (error) {
-    console.error(`Error generating poem: ${error}`);
+    console.error("Error fetching random words:", error);
   }
 }
 
-// Call the displayPoem function to generate and display a poem
-displayPoem();
+// Call the displayRandomWords function to fetch and display random words
+displayRandomWords();
+
 
 // Function to save user's poem to database
 const savePoem = async (poem, name, link, randomWords) => {
@@ -60,20 +52,18 @@ const handleSubmit = async (event) => {
   event.preventDefault();
   try {
     const poemTextarea = document.querySelector("#poem-text");
-    console.log("poemTextarea:", poemTextarea);
-    if (!poemTextarea) {
-      throw new Error("Poem textarea not found");
-    }
     const escapedPoem = escapeHtml(poemTextarea.value || "");
-    const result = await generatePoem(escapedPoem);
-    const aiGeneratedPoem = document.getElementById("ai-generated-poem");
-    const aiCriticReview = document.getElementById("ai-critic-review");
-    aiGeneratedPoem.textContent = `AI-generated poem: ${result.ai_poem}`;
-    aiCriticReview.textContent = `AI critic's review: ${result.ai_review}`;
     const randomWords = await getRandomWords();
-    await savePoem(escapedPoem, result.author, result.link, randomWords);
-    animateSubmit();
-    showModal("Poem submitted!");
+    const poemData = { poemBody: escapedPoem, randomWords };
+    const response = await fetch(`${HEROKU_URL}/ai_poem`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(poemData),
+    });
+    const { userPoem, aiPoem } = await response.json();
+    displayPoems(userPoem, aiPoem);
   } catch (error) {
     console.error("Submission error:", error);
     showModal("Failed to submit poem!");
@@ -95,6 +85,14 @@ const submitButton = document.getElementById("submit-button");
 if (submitButton) {
   submitButton.addEventListener("click", handleSubmit);
 }
+
+// Function to display both user poem and AI-generated poem
+const displayPoems = (userPoem, aiPoem) => {
+  const userPoemElement = document.getElementById("user-poem");
+  const aiPoemElement = document.getElementById("ai-poem");
+  userPoemElement.textContent = `User Poem: ${userPoem}`;
+  aiPoemElement.textContent = `AI Poem: ${aiPoem}`;
+};
 
 // Function to display poems for voting
 const displayVotingPoems = (poems) => {
