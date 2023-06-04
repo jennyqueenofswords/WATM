@@ -25,23 +25,40 @@ function generateRandomWords(numWords) {
   return randomWords({ exactly: numWords, join: " " });
 }
 
+const randomWordsList = generateRandomWords(5);
+console.log(randomWordsList); // Output: "word1 word2 word3 word4 word5"
+
 // Function to save a poem
 async function savePoem(poemData) {
   const poemFile = `${poemsDir}/poem-${Date.now()}.json`;
   await fs.writeJSON(poemFile, poemData);
 }
 
+// Endpoint to get an AI-generated poem
+app.get("/ai_poem", async (req, res) => {
+  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
+  console.log("randomWords:", randomWords);
+  if (!randomWords || randomWords.length !== 5) {
+    res.status(400).json({ error: "Must provide exactly five random words" });
+    return;
+  }
+
+  try {
+    const poem = await generatePoem(randomWords, process.env.OPENAI_API_KEY);
+    res.send(poem); // Send only the poem text as the response
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to generate poem" });
+  }
+});
+
 // Function to generate a poem using the OpenAI API
 async function generatePoem(randomWords, apiKey) {
+  console.log("randomWords:", randomWords);
   const apiUrl = "https://api.openai.com/v1/completions";
-  
-  // Check that there are exactly five words
-  if (randomWords.length !== 5) {
-    throw new Error("Must provide exactly five random words");
-  }
-  
+
   // Generate the prompt
-  const prompt = `Compose a striking poem that will amaze a reader. Please use the following words: ${randomWords[0]}, ${randomWords[1]}, ${randomWords[2]}, ${randomWords[3]}, ${randomWords[4]}`;
+  const prompt = `Compose a striking contemporary poem you might find in the best american poetry 2020. your poem MUST include ALL of the following words: ${randomWords[0]}, ${randomWords[1]}, ${randomWords[2]}, ${randomWords[3]}, ${randomWords[4]}`;
 
   try {
     const response = await axios.post(apiUrl, {
@@ -59,22 +76,20 @@ async function generatePoem(randomWords, apiKey) {
         'Authorization': `Bearer ${apiKey}`
       }
     });
-  
+
     const poem = response.data.choices[0].text.trim();
     return poem;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate poem");
   }
-} 
-
+}
 
 
 
 
 // Function to get AI Critique
 async function getAiCritique(poem1, poem2, apiKey) {
-  console.log("randomWords:", randomWords);
   const apiUrl = "https://api.openai.com/v1/completions";
   try {
     const response = await axios.post(apiUrl, {
@@ -111,24 +126,6 @@ app.get("/random-words", (req, res) => {
   const numWords = req.query.numWords || 5;
   const words = generateRandomWords(numWords);
   res.send(words);
-});
-
-// Endpoint to get an AI-generated poem
-app.get("/ai_poem", async (req, res) => {
-  const randomWords = Array.isArray(req.query.randomWords) ? req.query.randomWords : req.query.randomWords?.split(",");
-  console.log("randomWords:", randomWords);
-  if (!randomWords || randomWords.length === 0) {
-    res.status(400).json({ error: "Missing randomWords parameter" });
-    return;
-  }
-
-  try {
-    const poem = await generatePoem(randomWords, process.env.OPENAI_API_KEY);
-    res.json({ poem: poem });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to generate poem" });
-  }
 });
 
 
